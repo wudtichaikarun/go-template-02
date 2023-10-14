@@ -1,0 +1,155 @@
+package restapi_gin
+
+import (
+	"mime/multipart"
+	"strconv"
+
+	restapi_context "git.amaze-x.com/amaze/amaze-cms-service/pkg/restapi/context"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+)
+
+type GinRouter struct {
+	*gin.Engine
+}
+
+type GinRouterGroup struct {
+	*gin.RouterGroup
+}
+
+type GinContext struct {
+	// composition gin.restapi_context.Context
+	// สามารถเรียก method gin ได้หมดเลย
+	*gin.Context
+}
+
+func NewGinContext(c *gin.Context) *GinContext {
+	return &GinContext{Context: c}
+}
+
+func NewGinRouter() *GinRouter {
+	r := gin.Default()
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{
+		"http://localhost:8080",
+	}
+	config.AllowHeaders = []string{
+		"Origin",
+		"Authorization",
+		"TransactionID",
+	}
+	r.Use(cors.New(config))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
+	return &GinRouter{r}
+}
+
+func (c *GinContext) Bind(v interface{}) error {
+	// c.restapi_context.Context คล้ายๆการเรียก supper
+	// c.ShouldBindJSON(v) ก็ได้เพราะ composition gin.restapi_context.Context ไปแล้วแต่แบบนี้ save กว่า
+	return c.Context.ShouldBindJSON(v)
+}
+
+func (c *GinContext) FormFile(name string) (*multipart.FileHeader, error) {
+	return c.Context.FormFile(name)
+}
+
+func (c *GinContext) JSON(s int, v interface{}) error {
+	c.Context.JSON(s, v)
+	return nil
+}
+
+func (c *GinContext) TransactionID() string {
+	return c.Request.Header.Get("TransactionID")
+}
+
+func (c *GinContext) Audience() string {
+	if aud, ok := c.Get("aud"); ok {
+		if s, ok := aud.(string); ok {
+			return s
+		}
+	}
+	return ""
+}
+
+func (c *GinContext) GetToken() string {
+	if aud, ok := c.Get("Authorization"); ok {
+		if s, ok := aud.(string); ok {
+			return s
+		}
+	}
+	return ""
+}
+
+func (c *GinContext) GetParam(key string) (int, error) {
+	param := c.Param(key)
+
+	v, err := strconv.Atoi(param)
+	if err != nil {
+		return 0, err
+
+	}
+
+	return v, nil
+}
+
+func (c *GinContext) GetQuery(key string) string {
+	return c.Query(key)
+}
+
+/*
+ส่วนนี้ไม่ค่อยจำเป็น แค่ช่วยให้ตอนเขียน
+
+  - from
+    protected.POST("/todos",
+    func(c restapi_context.restapi_context.Context){
+    todoHandler.NewTask(router.NewGinContext(c))
+    })
+
+  - to
+    protected.POST("/todos",
+    router.ConvertToGinHandler(todoHandler.NewTask)
+    )
+*/
+func ConvertToGinHandler(handler func(restapi_context.Context)) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		handler(&GinContext{Context: c})
+		// handler(NewGinContext(c))
+	}
+}
+
+// router r.POST()
+func (r *GinRouter) POST(path string, handler func(restapi_context.Context)) {
+	r.Engine.POST(path, ConvertToGinHandler(handler))
+}
+
+func (r *GinRouter) PUT(path string, handler func(restapi_context.Context)) {
+	r.Engine.PUT(path, ConvertToGinHandler(handler))
+}
+
+func (r *GinRouter) GET(path string, handler func(restapi_context.Context)) {
+	r.Engine.GET(path, ConvertToGinHandler(handler))
+}
+
+func (r *GinRouter) DELETE(path string, handler func(restapi_context.Context)) {
+	r.Engine.DELETE(path, ConvertToGinHandler(handler))
+}
+
+// router group r.Group().POST
+func (rg *GinRouterGroup) POST(path string, handler func(restapi_context.Context)) {
+	rg.RouterGroup.POST(path, ConvertToGinHandler(handler))
+}
+
+func (rg *GinRouterGroup) PUT(path string, handler func(restapi_context.Context)) {
+	rg.RouterGroup.PUT(path, ConvertToGinHandler(handler))
+}
+
+func (rg *GinRouterGroup) GET(path string, handler func(restapi_context.Context)) {
+	rg.RouterGroup.GET(path, ConvertToGinHandler(handler))
+}
+
+func (rg *GinRouterGroup) DELETE(path string, handler func(restapi_context.Context)) {
+	rg.RouterGroup.DELETE(path, ConvertToGinHandler(handler))
+}

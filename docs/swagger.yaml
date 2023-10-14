@@ -1,0 +1,101 @@
+definitions:
+  controllers.SuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controllers.SystemControllerResponse'
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  controllers.SystemControllerResponse:
+    properties:
+      live:
+        type: string
+    type: object
+  request.ExampleReq:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - description
+    - name
+    type: object
+  response.ExampleListRes:
+    properties:
+      examples:
+        items:
+          $ref: '#/definitions/response.ExampleRes'
+        type: array
+    type: object
+  response.ExampleRes:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: poc go template
+  termsOfService: http://swagger.io/terms/
+  title: '[Go template]'
+  version: "1.0"
+paths:
+  /system/health:
+    get:
+      consumes:
+      - application/json
+      description: system health check
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.SuccessResponse'
+      summary: system health check
+      tags:
+      - system
+  /v1/examples:
+    get:
+      consumes:
+      - application/json
+      description: list all example
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ExampleListRes'
+      summary: list all example
+      tags:
+      - example
+    post:
+      consumes:
+      - application/json
+      description: create example
+      parameters:
+      - description: create example body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.ExampleReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+      summary: create example
+      tags:
+      - example
+swagger: "2.0"
