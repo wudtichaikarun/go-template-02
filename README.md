@@ -13,6 +13,37 @@ go template implement with hexeganal architecture concept.
 - [ ] database migrate.
 - [ ] database seed.
 
+## Swagger
+
+Default service.port is 8080
+
+http://localhost:8080/swagger/index.html
+
+## System health
+
+Default service.port is 8080
+
+http://localhost:8080/system/health
+
+## Liveness Probe
+
+```yaml
+livenessProbe:
+  exec:
+    command:
+      - cat
+      - /tmp/live
+```
+
+## Readiness Probe
+
+```yaml
+readinessProbe:
+  httpGet:
+    path: /system/health
+    port: 80
+```
+
 ## project structure
 
 ```
