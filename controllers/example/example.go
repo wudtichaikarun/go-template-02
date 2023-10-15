@@ -3,6 +3,7 @@ package controllers_example
 import (
 	restapi_context "github.com/wudtichaikarun/poc-go-template-02/pkg/restapi/context"
 	restapi_response "github.com/wudtichaikarun/poc-go-template-02/pkg/restapi/response"
+	"github.com/wudtichaikarun/poc-go-template-02/pkg/utils"
 	"github.com/wudtichaikarun/poc-go-template-02/services/entities/request"
 	services_example "github.com/wudtichaikarun/poc-go-template-02/services/example"
 )
@@ -24,6 +25,12 @@ func (ec *exampleController) AddExample(c restapi_context.Context) {
 
 	if err := c.Bind(&example); err != nil {
 		restapi_response.BadRequest(c, "invalid request")
+		return
+	}
+
+	if err := utils.ValidateStruct(example); err != nil {
+		msg := utils.GetValidationStructErrors(err)
+		restapi_response.BadRequest(c, msg)
 		return
 	}
 

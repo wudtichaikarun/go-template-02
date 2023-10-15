@@ -5,7 +5,7 @@ go template implement with hexeganal architecture concept.
 - [x] rest api example.
 - [x] swagger documents.
 - [x] hot reload.
-- [ ] rest-api validate input, and mapping error message.
+- [x] rest-api validate input, and mapping error message.
 - [ ] error catcher, error handler middleware.
 - [ ] unit test example, using mockery to generate dependency.
 - [ ] logger.
