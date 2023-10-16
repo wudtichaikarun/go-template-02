@@ -2,8 +2,8 @@ package services_example
 
 import (
 	repositories_example "github.com/wudtichaikarun/poc-go-template-02/repositories/example"
+	"github.com/wudtichaikarun/poc-go-template-02/repositories/example/models"
 	"github.com/wudtichaikarun/poc-go-template-02/services/entities/request"
-	"github.com/wudtichaikarun/poc-go-template-02/services/entities/response"
 )
 
 type exampleService struct {
@@ -15,9 +15,9 @@ func (*exampleService) Create(r request.ExampleReq) error {
 	panic("unimplemented")
 }
 
-// FindAll implements ExampleService.
-func (*exampleService) FindAll() (t *response.ExampleListRes, err error) {
-	panic("unimplemented")
+// List implements ExampleService.
+func (es *exampleService) List() ([]models.Example, error) {
+	return es.exampleRepo.List()
 }
 
 func New(exampleRepo repositories_example.ExampleRepository) ExampleService {

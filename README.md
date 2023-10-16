@@ -7,7 +7,7 @@ go template implement with hexeganal architecture concept.
 - [x] hot reload.
 - [x] rest-api validate input, and mapping error message.
 - [ ] error catcher, error handler middleware.
-- [ ] unit test example, using mockery to generate dependency.
+- [x] unit test example, using mockery to generate dependency.
 - [ ] logger.
 - [x] example connect mysql.
 - [ ] database migrate.

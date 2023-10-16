@@ -6,6 +6,6 @@ import (
 )
 
 type ExampleRepository interface {
-	FindAll() (r *[]*models.Example, err error)
-	Create(r request.ExampleReq) error
+	List() ([]models.Example, error)
+	Create(request.ExampleReq) error
 }
